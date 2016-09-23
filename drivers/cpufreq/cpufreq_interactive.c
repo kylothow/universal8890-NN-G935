@@ -2671,8 +2671,6 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 		mutex_lock(&gov_lock);
 
 		freq_table = cpufreq_frequency_get_table(policy->cpu);
-		if (!tunables->hispeed_freq)
-			tunables->hispeed_freq = policy->max;
 #ifdef CONFIG_DYNAMIC_MODE_SUPPORT
 		for (j = 0; j < MAX_PARAM_SET; j++) {
 			if (!tunables->hispeed_freq_set[j])
