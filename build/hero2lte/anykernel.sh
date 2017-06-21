@@ -36,7 +36,12 @@ dump_boot;
 
 # begin ramdisk changes
 
-# ramdisk changes will be added here
+# fstab.samsungexynos8890
+patch_fstab fstab.samsungexynos8890 /system ext4 flags "wait,verify" "wait"
+patch_fstab fstab.samsungexynos8890 /data ext4 flags "wait,check,forceencrypt=footer" "wait,check,encryptable=footer"
+
+# fstab.samsungexynos8890.fwup
+patch_fstab fstab.samsungexynos8890.fwup /system ext4 flags "wait,verify" "wait"
 
 # end ramdisk changes
 
