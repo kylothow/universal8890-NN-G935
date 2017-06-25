@@ -95,6 +95,16 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
   mount -o ro,remount -t auto /system;
 fi;
 
+ui_print " ";
+ui_print "Installing patched fingerprint files...";
+mount -o rw,remount -t auto /system;
+cp -f /tmp/anykernel/system/vendor/lib/libsecure_storage.so $root/system/vendor/lib/;
+cp -f /tmp/anykernel/system/vendor/lib64/libsecure_storage.so $root/system/vendor/lib64/;
+chmod 0644 $root/system/vendor/lib/libsecure_storage.so;
+chmod 0644 $root/system/vendor/lib64/libsecure_storage.so;
+rm -f $root/system/app/mcRegistry/mcRegistry/ffffffffd0000000000000000000000a.tlbin;
+mount -o ro,remount -t auto /system;
+
 case $(basename "$ZIPFILE" .zip) in
   *-debugging)
     ui_print " ";
