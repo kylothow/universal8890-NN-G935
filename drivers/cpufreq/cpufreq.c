@@ -1519,8 +1519,10 @@ static int __cpufreq_remove_dev_finish(struct device *dev,
 		list_del(&policy->policy_list);
 		write_unlock_irqrestore(&cpufreq_driver_lock, flags);
 
-		if (!cpufreq_suspended)
+		if (!cpufreq_suspended) {
+			flush_work(&policy->update);
 			cpufreq_policy_free(policy);
+		}
 	} else if (has_target()) {
 		if (policy->hcpus_count)
 			return 0;
