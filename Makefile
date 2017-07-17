@@ -683,6 +683,9 @@ KBUILD_CFLAGS	+= -fgraphite \
 		   -ftree-loop-linear
 endif
 
+# Disallow introduction of unaligned stores
+KBUILD_CFLAGS	+= $(call cc-option,--param=store-merging-allow-unaligned=0)
+
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
 ifdef CONFIG_READABLE_ASM
