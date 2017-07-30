@@ -48,6 +48,8 @@ $bb chmod -R 755 /tmp/anykernel/tools /tmp/anykernel/bin;
 ui_print "==================================================";
 ui_print " ";
 ui_print "$(file_getprop /tmp/anykernel/anykernel.sh kernel.string)";
+ui_print "Version $(file_getprop /tmp/anykernel/.version kernel.version)";
+ui_print "Samsung OSRC $(file_getprop /tmp/anykernel/.version kernel.base) | Linux $(file_getprop /tmp/anykernel/.version linux.version)";
 ui_print " ";
 ui_print "Based on AnyKernel2 by osm0sis @ xda-developers";
 ui_print " ";
