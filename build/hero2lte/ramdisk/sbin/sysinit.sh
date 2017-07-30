@@ -16,6 +16,14 @@
 mount -o rw,remount /
 mount -o rw,remount /system
 
+# deepsleep fix
+for i in `ls /sys/class/scsi_disk/`; do
+	cat /sys/class/scsi_disk/$i/write_protect 2>/dev/null | grep 1 >/dev/null
+	if [ $? -eq 0 ]; then
+		echo 'temporary none' > /sys/class/scsi_disk/$i/cache_type
+	fi
+done
+
 # init.d support
 if [ ! -e /system/etc/init.d ]; then
 	mkdir /system/etc/init.d
