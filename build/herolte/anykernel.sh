@@ -28,7 +28,8 @@ is_slot_device=0;
 
 ## AnyKernel permissions
 # set permissions for included ramdisk files
-# permission settings will be added here
+chmod 750 $ramdisk/init.services.rc
+chmod 750 $ramdisk/sbin/sysinit.sh
 
 
 ## AnyKernel install
@@ -53,6 +54,9 @@ insert_line default.prop "persist.adb.notify=0" after "persist.service.adb.enabl
 insert_line default.prop "ro.securestorage.support=false" after "debug.atrace.tags.enableflags=0" "ro.securestorage.support=false";
 insert_line default.prop "ro.config.tima=0" after "ro.securestorage.support=false" "ro.config.tima=0";
 insert_line default.prop "wlan.wfd.hdcp=disable" after "ro.config.tima=0" "wlan.wfd.hdcp=disable";
+
+# init.samsungexynos8890.rc
+insert_line init.samsungexynos8890.rc "import init.services.rc" after "import init.remove_recovery.rc" "import init.services.rc";
 
 # end ramdisk changes
 
