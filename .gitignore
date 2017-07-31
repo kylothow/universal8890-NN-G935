@@ -33,6 +33,7 @@
 *.lzo
 *.zip
 *.patch
+*.diff
 *.gcno
 modules.builtin
 Module.symvers
@@ -87,6 +88,7 @@ GSYMS
 GTAGS
 
 *.orig
+*.rej
 *~
 \#*#
 
