@@ -16,9 +16,9 @@
 #
 
 KERNEL_NAME="Primal_Kernel"
-KERNEL_VERSION="2.0.0"
+KERNEL_VERSION="2.0.1"
 KERNEL_BASE="G935FXXU1DQH8"
-KERNEL_BETA="true"
+KERNEL_BETA="false"
 
 export ARCH=arm64
 export BUILD_JOB_NUMBER=$(grep processor /proc/cpuinfo | wc -l)
