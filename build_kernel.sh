@@ -58,13 +58,13 @@ FUNC_CUSTOM_CLEAN()
 	echo "=================================================================="
 	echo ""
 
-	echo "Deleting log files..."
+	echo "◊ Deleting log files..."
 	rm -f cfp_log.txt
 	rm -f build_kernel.log
 	rm -f build/herolte/.version
 	rm -f build/hero2lte/.version
 	echo ""
-	echo "Deleting patch related leftovers..."
+	echo "◊ Deleting patch related leftovers..."
 	rm -rf *.patch
 	rm -rf *.diff
 
@@ -154,31 +154,31 @@ FUNC_CLEAN()
 	echo ""
 
 	if [ -d $DTSDIR ]; then
-		echo -e "Deleting .dtb files in:\n $DTSDIR/"
+		echo -e "◊ Deleting .dtb files in:\n $DTSDIR/"
 		rm -rf $DTSDIR/*.dtb
 	fi
 	if [ -d $DTBDIR ]; then
-		echo -e "Deleting all the files in:\n $DTBDIR/"
+		echo -e "◊ Deleting all the files in:\n $DTBDIR/"
 		rm -rf $DTBDIR/*
 	fi
 	if [ -a $OUTDIR/dtb.img ]; then
-		echo -e "Deleting dtb.img in:\n $OUTDIR/"
+		echo -e "◊ Deleting dtb.img in:\n $OUTDIR/"
 		rm $OUTDIR/dtb.img
 	fi
 	if [ -a $OUTDIR/Image ]; then
-		echo -e "Deleting Image in:\n $OUTDIR/"
+		echo -e "◊ Deleting Image in:\n $OUTDIR/"
 		rm $OUTDIR/Image
 	fi
 	if [ -a $ZIPDIR/zImage ]; then
-		echo -e "Deleting zImage in:\n $ZIPDIR/"
+		echo -e "◊ Deleting zImage in:\n $ZIPDIR/"
 		rm $ZIPDIR/zImage
 	fi
 	if [ -a $ZIPDIR/dtb ]; then
-		echo -e "Deleting dtb in:\n $ZIPDIR/"
+		echo -e "◊ Deleting dtb in:\n $ZIPDIR/"
 		rm $ZIPDIR/dtb
 	fi
 	if [ -a $EXTDIR/*-$MODEL$VARIANT.zip ]; then
-		echo -e "Deleting zip for $MODEL$VARIANT in:\n $EXTDIR"
+		echo -e "◊ Deleting zip for $MODEL$VARIANT in:\n $EXTDIR"
 		rm $EXTDIR/*-$MODEL$VARIANT.zip
 	fi
 
@@ -221,7 +221,7 @@ FUNC_BUILD_DTIMAGE_TARGET()
 		mkdir $DTBDIR
 	fi
 	cd $DTBDIR
-	echo "Processing dts files..."
+	echo "◊ Processing dts files..."
 	echo ""
 	for dts in $DTSFILES; do
 		echo "=> Processing: ${dts}.dts"
@@ -231,7 +231,7 @@ FUNC_BUILD_DTIMAGE_TARGET()
 	done
 
 	echo ""
-	echo "Generating dtb.img..."
+	echo "◊ Generating dtb.img..."
 	echo ""
 	$RDIR/scripts/dtbTool/dtbTool -o "$OUTDIR/dtb.img" -d "$DTBDIR/" -s $PAGE_SIZE
 
@@ -249,19 +249,19 @@ FUNC_BUILD_KERNEL()
 	echo "START : FUNC_BUILD_KERNEL"
 	echo "=================================================================="
 	echo ""
-	echo "Build defconfig:	$KERNEL_DEFCONFIG"
-	echo "Build model:		$MODEL"
-	echo "Build variant:		$VARIANT"
+	echo "◊ Build defconfig:	$KERNEL_DEFCONFIG"
+	echo "◊ Build model:		$MODEL"
+	echo "◊ Build variant:	$VARIANT"
 
 	echo ""
-	echo "Generating kernel config..."
+	echo "◊ Generating kernel config..."
 	echo ""
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
 			$KERNEL_DEFCONFIG || exit -1
 
 	echo ""
-	echo "Building kernel..."
+	echo "◊ Building kernel..."
 	echo ""
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE || exit -1
@@ -322,7 +322,7 @@ rm -rf ./build_kernel.log
 
 	let "COMPILE_TIME=$END_COMPILE-$START_COMPILE"
 	let "ELAPSED_TIME=$END_TIME-$START_TIME"
-	echo "Total kernel compile time was $COMPILE_TIME seconds."
-	echo "Total build time was $ELAPSED_TIME seconds."
+	echo "◊ Total kernel compile time was $COMPILE_TIME seconds."
+	echo "◊ Total build time was $ELAPSED_TIME seconds."
 	echo ""
 ) 2>&1 | tee -a ./build_kernel.log

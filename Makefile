@@ -494,7 +494,7 @@ SELINUX_DIR=$(shell $(CONFIG_SHELL) $(srctree)/scripts/find_matching_major.sh "$
 PHONY += replace_dirs
 replace_dirs:
 # Example
-	@echo "replace selinux from $(SELINUX_DIR)"
+	@echo "◊ Replace SELinux from $(SELINUX_DIR)"
 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/replace_dir.sh "$(srctree)" "security/selinux" "$(SELINUX_DIR)"
 
 # To make sure we do not include .config for any of the *config targets
@@ -979,7 +979,7 @@ endif
 
 PHONY += print_info
 print_info:
-	@echo "INFO: CC is $(CC)"
+	@echo "◊ INFO: CC is $(CC)"
 
 # The actual objects are generated when descending,
 # make sure no implicit rule kicks in
