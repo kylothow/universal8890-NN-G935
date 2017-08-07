@@ -326,3 +326,4 @@ rm -rf ./build_kernel.log
 	echo "◊ Total build time was $ELAPSED_TIME seconds."
 	echo ""
 ) 2>&1 | tee -a ./build_kernel.log
+sed -i '1s/.*//' ./build_kernel.log
