@@ -61,12 +61,27 @@ FUNC_CUSTOM_CLEAN()
 	echo "◊ Deleting log files..."
 	rm -f cfp_log.txt
 	rm -f build_kernel.log
+	echo ""
+	echo "◊ Deleting all the previous builds..."
+	rm -rf out/*.zip
+	echo ""
+	echo "◊ Deleting dtb compilation leftovers..."
+	rm -f arch/arm64/boot/dtb.img
+	rm -rf arch/arm64/boot/dtb/*
+	echo ""
+	echo "◊ Cleaning build folder..."
+	rm -f build/herolte/dtb
+	rm -f build/herolte/zImage
 	rm -f build/herolte/.version
+	rm -f build/hero2lte/dtb
+	rm -f build/hero2lte/zImage
 	rm -f build/hero2lte/.version
 	echo ""
 	echo "◊ Deleting patch related leftovers..."
 	rm -rf *.patch
 	rm -rf *.diff
+	find . -name "*.orig" -delete
+	find . -name "*.rej" -delete
 
 	echo ""
 	echo "=================================================================="
