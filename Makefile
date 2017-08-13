@@ -646,7 +646,32 @@ else
 KBUILD_CFLAGS	+= -O2
 endif
 
-KBUILD_CFLAGS	+= $(call cc-option,-mtune=exynos-m1.cortex-a53)
+LDFLAGS	+= --strip-debug -O2
+
+KBUILD_CFLAGS	+= -g0 -DNDEBUG \
+		   -fgcse-las \
+		   -fgcse-lm \
+		   -fgcse-sm \
+		   -fgraphite \
+		   -fgraphite-identity \
+		   -fivopts \
+		   -floop-block \
+		   -floop-interchange \
+		   -floop-nest-optimize \
+		   -floop-strip-mine \
+		   -fmodulo-sched \
+		   -fmodulo-sched-allow-regmoves \
+		   -fomit-frame-pointer \
+		   -ftree-loop-distribution \
+		   -ftree-loop-im \
+		   -ftree-loop-ivcanon \
+		   -ftree-loop-linear \
+		   -ftree-vectorize \
+		   -funroll-loops \
+		   -mlow-precision-recip-sqrt \
+		   -mpc-relative-literal-loads \
+		   -mcpu=exynos-m1 \
+		   -mtune=exynos-m1
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
