@@ -22,7 +22,7 @@ KERNEL_BETA="false"
 
 export ARCH=arm64
 export BUILD_JOB_NUMBER=$(grep processor /proc/cpuinfo | wc -l)
-export BUILD_CROSS_COMPILE=../gcc-linaro-5.4.1-2017.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+export BUILD_CROSS_COMPILE=../aarch64-uber-linux-android-6.4.1-20170805/bin/aarch64-linux-android-
 
 FUNC_CLEAN_ENVIRONMENT()
 {
