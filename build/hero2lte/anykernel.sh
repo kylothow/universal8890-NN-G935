@@ -52,6 +52,20 @@ if egrep -q "dream2lte|SM-G955" "/system/build.prop"; then
   replace_file service_contexts 644 dream2lte/service_contexts;
 fi;
 
+if egrep -q "gracerlte|SM-N935" "/system/build.prop"; then
+  ui_print " ";
+  ui_print "Patching ramdisk for Note FE ported ROMs...";
+  insert_line default.prop "ro.oem_unlock_supported=1" after "persist.security.ams.enforcing=1" "ro.oem_unlock_supported=1";
+  replace_file init.environ.rc 750 gracerlte/init.environ.rc;
+  insert_line init.samsungexynos8890.rc "service visiond /system/bin/visiond" after "start secure_storage" "\n# AIR\nservice visiond /system/bin/visiond\n    class main\n    user system\n    group system camera media media_rw\n";
+  replace_file property_contexts 644 gracerlte/property_contexts;
+  replace_file seapp_contexts 644 gracerlte/seapp_contexts;
+  replace_file sepolicy 644 gracerlte/sepolicy;
+  replace_file sepolicy_version 644 gracerlte/sepolicy_version;
+  replace_file service_contexts 644 gracerlte/service_contexts;
+  insert_line ueventd.samsungexynos8890.rc "/dev/vertex0             0660   media      media" after "/dev/block/platform/155a0000.ufs/by-name/STEADY    0660    system    system" "\n# Vision (VPU, SCORE)\n/dev/vertex0             0660   media      media\n/dev/vertex1             0660   media      media\n/dev/iva_ctl             0660   media      media";
+fi;
+
 # default.prop
 patch_prop default.prop "ro.secure" "0";
 patch_prop default.prop "ro.debuggable" "1";
