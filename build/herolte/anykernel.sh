@@ -28,6 +28,8 @@ is_slot_device=0;
 
 ## AnyKernel permissions
 # set permissions for included ramdisk files
+chmod 640 $ramdisk/fstab.samsungexynos8890
+chmod 640 $ramdisk/fstab.samsungexynos8890.fwup
 chmod 750 $ramdisk/init.services.rc
 chmod 750 $ramdisk/sbin/sysinit.sh
 
@@ -36,13 +38,6 @@ chmod 750 $ramdisk/sbin/sysinit.sh
 dump_boot;
 
 # begin ramdisk changes
-
-# fstab.samsungexynos8890
-patch_fstab fstab.samsungexynos8890 /system ext4 flags "wait,verify" "wait"
-patch_fstab fstab.samsungexynos8890 /data ext4 flags "wait,check,forceencrypt=footer" "wait,check,encryptable=footer"
-
-# fstab.samsungexynos8890.fwup
-patch_fstab fstab.samsungexynos8890.fwup /system ext4 flags "wait,verify" "wait"
 
 # default.prop
 patch_prop default.prop "ro.secure" "0";
