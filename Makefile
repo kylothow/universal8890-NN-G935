@@ -652,26 +652,29 @@ KBUILD_CFLAGS	+= -g0 -DNDEBUG \
 		   -fgcse-las \
 		   -fgcse-lm \
 		   -fgcse-sm \
-		   -fgraphite \
-		   -fgraphite-identity \
 		   -fivopts \
-		   -floop-block \
-		   -floop-interchange \
-		   -floop-nest-optimize \
-		   -floop-strip-mine \
-		   -fmodulo-sched \
 		   -fmodulo-sched-allow-regmoves \
 		   -fomit-frame-pointer \
 		   -ftree-loop-distribution \
 		   -ftree-loop-im \
 		   -ftree-loop-ivcanon \
-		   -ftree-loop-linear \
 		   -ftree-vectorize \
 		   -funroll-loops \
 		   -mlow-precision-recip-sqrt \
 		   -mpc-relative-literal-loads \
 		   -mcpu=exynos-m1 \
 		   -mtune=exynos-m1
+
+ifneq ($(HOST_ARCH),aarch64)
+KBUILD_CFLAGS	+= -fgraphite \
+		   -fgraphite-identity \
+		   -floop-block \
+		   -floop-interchange \
+		   -floop-nest-optimize \
+		   -floop-strip-mine \
+		   -fmodulo-sched \
+		   -ftree-loop-linear
+endif
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)

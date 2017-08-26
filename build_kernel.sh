@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Kernel Build Script v4.0
+# Kernel Build Script v4.1
 #
 # Copyright (C) 2017 Michele Beccalossi <beccalossi.michele@gmail.com>
 #
@@ -21,8 +21,11 @@ KERNEL_BASE="G935FXXU1DQH8"
 KERNEL_BETA="false"
 
 export ARCH=arm64
+export HOST_ARCH=$(uname -m)
 export BUILD_JOB_NUMBER=$(grep processor /proc/cpuinfo | wc -l)
-export BUILD_CROSS_COMPILE=../aarch64-uber-linux-android-6.4.1-20170805/bin/aarch64-linux-android-
+if ! [ $HOST_ARCH == aarch64 ]; then
+	export BUILD_CROSS_COMPILE=../aarch64-uber-linux-android-6.4.1-20170805/bin/aarch64-linux-android-
+fi
 
 FUNC_CLEAN_ENVIRONMENT()
 {
@@ -212,43 +215,51 @@ FUNC_BUILD_DTIMAGE_TARGET()
 	echo "=================================================================="
 	echo ""
 
-	if [ $MODEL == herolte ] && [ $VARIANT == eur ]; then
-		DTSFILES="exynos8890-herolte_eur_open_00 exynos8890-herolte_eur_open_01
-				exynos8890-herolte_eur_open_02 exynos8890-herolte_eur_open_03
-				exynos8890-herolte_eur_open_04 exynos8890-herolte_eur_open_08
-				exynos8890-herolte_eur_open_09"
-	elif [ $MODEL == hero2lte ] && [ $VARIANT == eur ]; then
-		DTSFILES="exynos8890-hero2lte_eur_open_00 exynos8890-hero2lte_eur_open_01
-				exynos8890-hero2lte_eur_open_03 exynos8890-hero2lte_eur_open_04
-				exynos8890-hero2lte_eur_open_08"
-	elif [ $MODEL == herolte ] && [ $VARIANT == kor ]; then
-		DTSFILES="exynos8890-herolte_kor_all_00 exynos8890-herolte_kor_all_01
-				exynos8890-herolte_kor_all_02 exynos8890-herolte_kor_all_03
-				exynos8890-herolte_kor_all_04 exynos8890-herolte_kor_all_08
-				exynos8890-herolte_kor_all_09"
-	elif [ $MODEL == hero2lte ] && [ $VARIANT == kor ]; then
-		DTSFILES="exynos8890-hero2lte_kor_all_00 exynos8890-hero2lte_kor_all_01
-				exynos8890-hero2lte_kor_all_03 exynos8890-hero2lte_kor_all_04
-				exynos8890-hero2lte_kor_all_08 exynos8890-hero2lte_kor_all_09"
-	fi
+	if [ $HOST_ARCH == x86_64 ]; then
+		if [ $MODEL == herolte ] && [ $VARIANT == eur ]; then
+			DTSFILES="exynos8890-herolte_eur_open_00 exynos8890-herolte_eur_open_01
+					exynos8890-herolte_eur_open_02 exynos8890-herolte_eur_open_03
+					exynos8890-herolte_eur_open_04 exynos8890-herolte_eur_open_08
+					exynos8890-herolte_eur_open_09"
+		elif [ $MODEL == hero2lte ] && [ $VARIANT == eur ]; then
+			DTSFILES="exynos8890-hero2lte_eur_open_00 exynos8890-hero2lte_eur_open_01
+					exynos8890-hero2lte_eur_open_03 exynos8890-hero2lte_eur_open_04
+					exynos8890-hero2lte_eur_open_08"
+		elif [ $MODEL == herolte ] && [ $VARIANT == kor ]; then
+			DTSFILES="exynos8890-herolte_kor_all_00 exynos8890-herolte_kor_all_01
+					exynos8890-herolte_kor_all_02 exynos8890-herolte_kor_all_03
+					exynos8890-herolte_kor_all_04 exynos8890-herolte_kor_all_08
+					exynos8890-herolte_kor_all_09"
+		elif [ $MODEL == hero2lte ] && [ $VARIANT == kor ]; then
+			DTSFILES="exynos8890-hero2lte_kor_all_00 exynos8890-hero2lte_kor_all_01
+					exynos8890-hero2lte_kor_all_03 exynos8890-hero2lte_kor_all_04
+					exynos8890-hero2lte_kor_all_08 exynos8890-hero2lte_kor_all_09"
+		fi
 
-	if ! [ -d $DTBDIR ]; then
-		mkdir $DTBDIR
-	fi
-	cd $DTBDIR
-	echo "◊ Processing dts files..."
-	echo ""
-	for dts in $DTSFILES; do
-		echo "=> Processing: ${dts}.dts"
-		${CROSS_COMPILE}cpp -nostdinc -undef -x assembler-with-cpp -I "$INCDIR" "$DTSDIR/${dts}.dts" > "${dts}.dts"
-		echo "=> Generating: ${dts}.dtb"
-		$DTCTOOL -p $DTB_PADDING -i "$DTSDIR" -O dtb -o "${dts}.dtb" "${dts}.dts"
-	done
+		if ! [ -d $DTBDIR ]; then
+			mkdir $DTBDIR
+		fi
+		cd $DTBDIR
+		echo "◊ Processing dts files..."
+		echo ""
+		for dts in $DTSFILES; do
+			echo "=> Processing: ${dts}.dts"
+			${CROSS_COMPILE}cpp -nostdinc -undef -x assembler-with-cpp -I "$INCDIR" "$DTSDIR/${dts}.dts" > "${dts}.dts"
+			echo "=> Generating: ${dts}.dtb"
+			$DTCTOOL -p $DTB_PADDING -i "$DTSDIR" -O dtb -o "${dts}.dtb" "${dts}.dts"
+		done
 
-	echo ""
-	echo "◊ Generating dtb.img..."
-	echo ""
-	$RDIR/scripts/dtbTool/dtbTool -o "$OUTDIR/dtb.img" -d "$DTBDIR/" -s $PAGE_SIZE
+		echo ""
+		echo "◊ Generating dtb.img..."
+		echo ""
+		$RDIR/scripts/dtbTool/dtbTool -o "$OUTDIR/dtb.img" -d "$DTBDIR/" -s $PAGE_SIZE
+
+		echo ""
+		echo "◊ Backing up dtb.img for unsupported host architectures."
+		cp $OUTDIR/dtb.img $OUTDIR/.dtb-${MODEL}${VARIANT}.img.bak
+	else
+		echo "◊ Unsupported host architecture, nothing to do here..."
+	fi
 
 	echo ""
 	echo "=================================================================="
@@ -297,7 +308,16 @@ FUNC_BUILD_ZIP()
 	echo ""
 
 	cp $OUTDIR/Image $ZIPDIR/zImage
-	cp $OUTDIR/dtb.img $ZIPDIR/dtb
+	if ! [ $HOST_ARCH == aarch64 ]; then
+		cp $OUTDIR/dtb.img $ZIPDIR/dtb
+	elif [ -a $OUTDIR/.dtb-${MODEL}${VARIANT}.img.bak ]; then
+		cp $OUTDIR/.dtb-${MODEL}${VARIANT}.img.bak $ZIPDIR/dtb
+		echo "◊ WARNING: Using the backed up dtb.img from the previous ${MODEL}${VARIANT} compilation."
+		echo ""
+	else
+		echo "◊ WARNING: Missing .dtb-${MODEL}${VARIANT}.img.bak, add dtb in the zip manually!"
+		echo ""
+	fi
 
 	VERSION=$(grep -Po -m 1 '(?<=VERSION = ).*' $RDIR/Makefile)
 	PATCHLEVEL=$(grep -Po -m 1 '(?<=PATCHLEVEL = ).*' $RDIR/Makefile)
