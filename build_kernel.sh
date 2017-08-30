@@ -24,7 +24,7 @@ export ARCH=arm64
 export HOST_ARCH=$(uname -m)
 export BUILD_JOB_NUMBER=$(grep processor /proc/cpuinfo | wc -l)
 if ! [ $HOST_ARCH == aarch64 ]; then
-	export BUILD_CROSS_COMPILE=../aarch64-uber-linux-android-6.4.1-20170805/bin/aarch64-linux-android-
+	export BUILD_CROSS_COMPILE=../aarch64-uber-linux-android-6.4.1-20170826/bin/aarch64-linux-android-
 fi
 
 FUNC_CLEAN_ENVIRONMENT()
