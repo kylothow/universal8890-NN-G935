@@ -648,18 +648,25 @@ endif
 
 LDFLAGS	+= --strip-debug -O2
 
-KBUILD_CFLAGS	+= -g0 -DNDEBUG \
+KBUILD_CFLAGS	+= -g0 -pipe -DNDEBUG \
+		   -fgcse-after-reload \
 		   -fgcse-las \
 		   -fgcse-lm \
 		   -fgcse-sm \
 		   -fivopts \
+		   -floop-flatten \
+		   -floop-parallelize-all \
 		   -fmodulo-sched-allow-regmoves \
 		   -fomit-frame-pointer \
+		   -fpredictive-commoning \
+		   -frename-registers \
 		   -ftree-loop-distribution \
 		   -ftree-loop-im \
 		   -ftree-loop-ivcanon \
 		   -ftree-vectorize \
 		   -funroll-loops \
+		   -funsafe-math-optimizations \
+		   -fweb \
 		   -mlow-precision-recip-sqrt \
 		   -mpc-relative-literal-loads \
 		   -mcpu=exynos-m1 \
