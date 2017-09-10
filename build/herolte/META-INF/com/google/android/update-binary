@@ -105,6 +105,19 @@ chmod 0644 $root/system/vendor/lib64/libsecure_storage.so;
 rm -f $root/system/app/mcRegistry/mcRegistry/ffffffffd0000000000000000000000a.tlbin;
 mount -o ro,remount -t auto /system;
 
+ui_print " ";
+ui_print "Installing binaries for advanced controls...";
+mount -o rw,remount -t auto /system;
+cp -f /tmp/anykernel/system/xbin/sqlite3 $root/system/xbin/;
+cp -f /tmp/anykernel/system/xbin/zip $root/system/xbin/;
+cp -f /tmp/anykernel/system/xbin/busybox $root/system/xbin/;
+chmod 0755 $root/system/xbin/sqlite3;
+chmod 0755 $root/system/xbin/zip;
+chmod 0755 $root/system/xbin/busybox;
+ln -s $root/system/xbin/busybox $root/system/bin/busybox;
+$root/system/xbin/busybox --install -s $root/system/xbin;
+mount -o ro,remount -t auto /system;
+
 case $(basename "$ZIPFILE" .zip) in
   *-debugging)
     ui_print " ";
