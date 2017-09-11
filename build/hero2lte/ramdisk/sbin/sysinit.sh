@@ -14,6 +14,7 @@
 #
 
 resetprop=/sbin/resetprop
+fstrim=/system/xbin/fstrim
 
 mount -o rw,remount /
 mount -o rw,remount /system
@@ -36,6 +37,11 @@ $resetprop -n ro.warranty_bit "0"
 $resetprop -n ro.fmp_config "1"
 $resetprop -n ro.boot.fmp_config "1"
 $resetprop -n sys.oem_unlock_allowed "0"
+
+# trim on boot
+$fstrim -v /system
+$fstrim -v /data
+$fstrim -v /cache
 
 # init.d support
 if [ ! -e /system/etc/init.d ]; then
