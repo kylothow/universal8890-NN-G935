@@ -17,6 +17,7 @@ resetprop=/sbin/resetprop
 fstrim=/system/xbin/fstrim
 
 mount -o rw,remount /
+mount -t rootfs -o rw,remount rootfs
 mount -o rw,remount /system
 
 # deepsleep fix
@@ -55,5 +56,32 @@ for file in /system/etc/init.d/*; do
 	sh $file >/dev/null
 done
 
+# restart Google Play services
+if [ "$(busybox pidof com.google.android.gms | wc -l)" -eq "1" ]; then
+	busybox kill "$(busybox pidof com.google.android.gms)"
+fi
+if [ "$(busybox pidof com.google.android.gms.unstable | wc -l)" -eq "1" ]; then
+	busybox kill "$(busybox pidof com.google.android.gms.unstable)"
+fi
+if [ "$(busybox pidof com.google.android.gms.persistent | wc -l)" -eq "1" ]; then
+	busybox kill "$(busybox pidof com.google.android.gms.persistent)"
+fi
+if [ "$(busybox pidof com.google.android.gms.wearable | wc -l)" -eq "1" ]; then
+	busybox kill "$(busybox pidof com.google.android.gms.wearable)"
+fi
+
+# Google Play services wakelocks fix
+pm enable com.google.android.gms/.update.SystemUpdateActivity
+pm enable com.google.android.gms/.update.SystemUpdateService
+pm enable com.google.android.gms/.update.SystemUpdateService$ActiveReceiver
+pm enable com.google.android.gms/.update.SystemUpdateService$Receiver
+pm enable com.google.android.gms/.update.SystemUpdateService$SecretCodeReceiver
+pm enable com.google.android.gsf/.update.SystemUpdateActivity
+pm enable com.google.android.gsf/.update.SystemUpdatePanoActivity
+pm enable com.google.android.gsf/.update.SystemUpdateService
+pm enable com.google.android.gsf/.update.SystemUpdateService$Receiver
+pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeReceiver
+
 mount -o ro,remount /
+mount -t rootfs -o ro,remount rootfs
 mount -o ro,remount /system
