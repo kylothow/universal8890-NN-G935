@@ -13,6 +13,8 @@
 # GNU General Public License for more details.
 #
 
+resetprop=/sbin/resetprop
+
 mount -o rw,remount /
 mount -o rw,remount /system
 
@@ -23,6 +25,17 @@ for i in `ls /sys/class/scsi_disk/`; do
 		echo 'temporary none' > /sys/class/scsi_disk/$i/cache_type
 	fi
 done
+
+# alter system properties
+$resetprop -n ro.boot.veritymode "enforcing"
+$resetprop -n ro.boot.verifiedbootstate "green"
+$resetprop -n ro.boot.flash.locked "1"
+$resetprop -n ro.boot.ddrinfo "00000001"
+$resetprop -n ro.boot.warranty_bit "0"
+$resetprop -n ro.warranty_bit "0"
+$resetprop -n ro.fmp_config "1"
+$resetprop -n ro.boot.fmp_config "1"
+$resetprop -n sys.oem_unlock_allowed "0"
 
 # init.d support
 if [ ! -e /system/etc/init.d ]; then
