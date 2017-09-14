@@ -1505,6 +1505,8 @@ static int mmc_blk_err_check(struct mmc_card *card,
 		if (rq_data_dir(req) == READ) {
 			if (ecc_err)
 				return MMC_BLK_ABORT;
+			if (mmc_card_sd(card)) 
+				return MMC_BLK_ABORT; /* no retry for sd read data error */ 
 			return MMC_BLK_DATA_ERR;
 		} else {
 			return MMC_BLK_CMD_ERR;
