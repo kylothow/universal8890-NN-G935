@@ -561,6 +561,41 @@ static struct param_info g_pbi[(PARAM_A_DSM_4_0_MAX >> 1)] = {
 		.type = sizeof(uint32_t),
 		.val = 0,
 	},
+	{
+		.id = PARAM_A_POWER_MEASUREMENT,
+		.addr = 0x2A01DE,
+		.size = 2,
+		.type = sizeof(uint32_t),
+		.val = 0,
+	},
+	{
+		.id = PARAM_A_MAINSPKHFCOMP,
+		.addr = 0x2A01E0,
+		.size = 2,
+		.type = sizeof(uint32_t),
+		.val = 0,
+	},
+	{
+		.id = PARAM_A_EARPIECELEVEL,
+		.addr = 0x2A01E2,
+		.size = 2,
+		.type = sizeof(uint32_t),
+		.val = 0,
+	},
+	{
+		.id = PARAM_A_XOVER_FREQ,
+		.addr = 0x2A01E4,
+		.size = 2,
+		.type = sizeof(uint32_t),
+		.val = 0,
+	},
+	{
+		.id = PARAM_A_STEREO_MODE_CONF,
+		.addr = 0x2A01E6,
+		.size = 2,
+		.type = sizeof(uint32_t),
+		.val = 0,
+	},
 };
 
 static DEFINE_MUTEX(dsm_fs_lock);
@@ -895,7 +930,9 @@ void maxdsm_log_update(const void *byte_log_array,
 	do_gettimeofday(&tv);
 	time_to_tm(tv.tv_sec, 0, &maxdsm_log_timestamp);
 
-	maxdsm_log_present = 1;
+	if (maxdsm_byte_log_array[0] & 0x3) {
+		maxdsm_log_present = 1;
+	}
 
 	mutex_unlock(&maxdsm_log_lock);
 }
@@ -1444,10 +1481,35 @@ uint32_t maxdsm_get_platform_type(void)
 }
 EXPORT_SYMBOL_GPL(maxdsm_get_platform_type);
 
+uint32_t maxdsm_get_version(void)
+{
+	dbg_maxdsm("version=%d", maxdsm.version);
+	return maxdsm.version;
+}
+EXPORT_SYMBOL_GPL(maxdsm_get_version);
+
+uint32_t maxdsm_is_stereo(void)
+{
+	uint32_t ret = 0;
+
+	dbg_maxdsm("version=%d", maxdsm.version);
+
+	switch (maxdsm.version) {
+		case  VERSION_4_0_A_S:
+			ret = maxdsm.version;
+			break;
+		default:
+			break;
+
+	}
+	return ret;
+}
+EXPORT_SYMBOL_GPL(maxdsm_is_stereo);
+
 int maxdsm_update_feature_en_adc(int apply)
 {
 	unsigned int val = 0;
-	unsigned int reg;
+	unsigned int reg, reg_r, ret = 0;
 	struct param_set_data data = {
 		.name = PARAM_FEATURE_SET,
 		.addr = 0x2A006A,
@@ -1458,10 +1520,13 @@ int maxdsm_update_feature_en_adc(int apply)
 	switch (maxdsm.platform_type) {
 	case PLATFORM_TYPE_A:
 		reg = data.addr;
+		if (maxdsm.version == VERSION_4_0_A_S) {
+			reg_r = reg + DSM_4_0_LSI_STEREO_OFFSET;
+		}
 		break;
 	case PLATFORM_TYPE_B:
 		reg = data.name;
-		data.value <<= 1;
+		data.value <<= 2;
 		break;
 	default:
 		return -ENODATA;
@@ -1476,7 +1541,22 @@ int maxdsm_update_feature_en_adc(int apply)
 	dbg_maxdsm("apply=%d data.value=0x%x val=0x%x reg=%x",
 			apply, data.value, val, reg);
 
-	return maxdsm_set_param(&data, 1);
+	ret = maxdsm_set_param(&data, 1);
+
+	if (reg_r) {
+		data.addr = reg_r;
+		maxdsm_read_wrapper(reg_r, &val);
+
+		if (apply)
+			data.value = val | data.value;
+		else
+			data.value = val & ~data.value;
+		dbg_maxdsm("apply=%d data.value=0x%x val=0x%x reg=%x",
+				apply, data.value, val, reg_r);
+
+		ret = maxdsm_set_param(&data, 1);
+	}
+	return ret;
 }
 EXPORT_SYMBOL_GPL(maxdsm_update_feature_en_adc);
 
@@ -1499,7 +1579,7 @@ int maxdsm_set_feature_en(int on)
 				sizeof(maxdsm_saved_params)
 					/ sizeof(struct param_set_data),
 				data.name);
-	if (index < 0 || !maxdsm.platform_type)
+	if (index < 0 || (maxdsm.platform_type != PLATFORM_TYPE_B))
 		return -ENODATA;
 
 	if (on) {
@@ -1536,7 +1616,7 @@ int maxdsm_set_rdc_temp(int rdc, int temp)
 	struct param_set_data data[] = {
 		{
 			.name = PARAM_VOICE_COIL,
-			.value = rdc, /* This was already calculated. */
+			.value = rdc,
 			.wflag = FLAG_WRITE_RDC_CAL_ONLY,
 		},
 		{
@@ -1561,17 +1641,28 @@ EXPORT_SYMBOL_GPL(maxdsm_set_rdc_temp);
 
 int maxdsm_set_dsm_onoff_status(int on)
 {
+	int ret = 0;
 	struct param_set_data data[] = {
 		{
 			.name = PARAM_ONOFF,
+			.addr = 0x2A0062,
 			.value = on,
 			.wflag = FLAG_WRITE_ONOFF_ONLY,
 		},
 	};
 
-	return maxdsm_set_param(
+	ret = maxdsm_set_param(
 			data,
 			sizeof(data) / sizeof(struct param_set_data));
+
+	if (maxdsm.version == VERSION_4_0_A_S) {
+		data->addr += DSM_4_0_LSI_STEREO_OFFSET;
+		ret = maxdsm_set_param(
+				data,
+				sizeof(data) / sizeof(struct param_set_data));
+	}
+
+	return ret;
 }
 EXPORT_SYMBOL_GPL(maxdsm_set_dsm_onoff_status);
 
@@ -1702,6 +1793,7 @@ int maxdsm_update_param_info(struct maxim_dsm *maxdsm)
 	/* Try to get parameter size. */
 	switch (maxdsm->version) {
 	case VERSION_4_0_A:
+	case VERSION_4_0_A_S:
 		maxdsm->param_size = PARAM_A_DSM_4_0_MAX;
 		break;
 	case VERSION_4_0_B:
@@ -1731,6 +1823,7 @@ int maxdsm_update_param_info(struct maxim_dsm *maxdsm)
 	/* Try to copy parameter size. */
 	switch (maxdsm->version) {
 	case VERSION_4_0_A:
+	case VERSION_4_0_A_S:
 		memcpy(&maxdsm->binfo[ARRAY_SIZE(binfo_a_v35)],
 				binfo_a_v40, sizeof(binfo_a_v40));
 	case VERSION_3_5_A:
@@ -1844,33 +1937,53 @@ uint32_t maxdsm_get_power_measurement(void)
 }
 EXPORT_SYMBOL_GPL(maxdsm_get_power_measurement);
 
+void maxdsm_set_stereo_mode_configuration(unsigned int mode)
+{
+	dbg_maxdsm("platform %d, mode %d", maxdsm.platform_type, mode);
+	switch (maxdsm.platform_type) {
+	case PLATFORM_TYPE_A:
+		maxdsm_regmap_write(0x2A0380, mode);
+		break;
+	case PLATFORM_TYPE_B:
+	case PLATFORM_TYPE_C:
+		break;
+	}
+}
+EXPORT_SYMBOL_GPL(maxdsm_set_stereo_mode_configuration);
+
 int maxdsm_set_pilot_signal_state(int on)
 {
 	int ret = 0;
 
-	/* update dsm parameters */
-	maxdsm.filter_set = DSM_ID_FILTER_GET_AFE_PARAMS;
-	ret = maxdsm_dsm_open(&maxdsm);
-	if (ret)
-		goto error;
+	switch (maxdsm.platform_type) {
+	case PLATFORM_TYPE_A:
+		break;
+	case PLATFORM_TYPE_B:
+		/* update dsm parameters */
+		maxdsm.filter_set = DSM_ID_FILTER_GET_AFE_PARAMS;
+		ret = maxdsm_dsm_open(&maxdsm);
+		if (ret)
+			goto error;
 
-	/* feature_set parameter is set by pilot signal off */
-	maxdsm.param[PARAM_WRITE_FLAG] = FLAG_WRITE_FEATURE_ONLY;
-	maxdsm.param[PARAM_FEATURE_SET] =
-		on ? maxdsm.param[PARAM_FEATURE_SET] & ~0x200
-		: maxdsm.param[PARAM_FEATURE_SET] | 0x200;
-	maxdsm.filter_set = DSM_ID_FILTER_SET_AFE_CNTRLS;
-	ret = maxdsm_dsm_open(&maxdsm);
-	if (ret)
-		goto error;
+		/* feature_set parameter is set by pilot signal off */
+		maxdsm.param[PARAM_WRITE_FLAG] = FLAG_WRITE_FEATURE_ONLY;
+		maxdsm.param[PARAM_FEATURE_SET] =
+			on ? maxdsm.param[PARAM_FEATURE_SET] & ~0x200
+			: maxdsm.param[PARAM_FEATURE_SET] | 0x200;
+		maxdsm.filter_set = DSM_ID_FILTER_SET_AFE_CNTRLS;
+		ret = maxdsm_dsm_open(&maxdsm);
+		if (ret)
+			goto error;
 
-	/* check feature_set parameter */
-	maxdsm.filter_set = DSM_ID_FILTER_GET_AFE_PARAMS;
-	ret = maxdsm_dsm_open(&maxdsm);
-	if (!(maxdsm.param[PARAM_FEATURE_SET] & 0x200)) {
-		dbg_maxdsm("Feature set param was not updated. 0x%08x",
-				maxdsm.param[PARAM_FEATURE_SET]);
-		ret = -EAGAIN;
+		/* check feature_set parameter */
+		maxdsm.filter_set = DSM_ID_FILTER_GET_AFE_PARAMS;
+		ret = maxdsm_dsm_open(&maxdsm);
+		if (!(maxdsm.param[PARAM_FEATURE_SET] & 0x200)) {
+			dbg_maxdsm("Feature set param was not updated. 0x%08x",
+					maxdsm.param[PARAM_FEATURE_SET]);
+			ret = -EAGAIN;
+		}
+		break;
 	}
 
 error:
@@ -1917,6 +2030,14 @@ int maxdsm_update_caldata(int on)
 					g_pbi[x].val);
 				dbg_maxdsm("[%d]: 0x%08x / 0x%08x",
 						x, g_pbi[x].addr, g_pbi[x].val);
+			}
+		}
+		if (maxdsm.version == VERSION_4_0_A_S) {
+			for (x = 0; x < (maxdsm.param_size >> 1); x++)	{
+				maxdsm_regmap_write(g_pbi[x].addr+DSM_4_0_LSI_STEREO_OFFSET,
+					g_pbi[x].val);
+				dbg_maxdsm("[%d]: 0x%08x / 0x%08x",
+						x, g_pbi[x].addr+DSM_4_0_LSI_STEREO_OFFSET, g_pbi[x].val);
 			}
 		}
 		break;
@@ -2043,7 +2164,7 @@ static long maxdsm_ioctl_handler(struct file *file,
 		break;
 	case MAXDSM_IOCTL_SET_PLATFORM_TYPE:
 		if (arg < PLATFORM_TYPE_A ||
-				arg > PLATFORM_TYPE_B)
+				arg >= PLATFORM_TYPE_MAX)
 			goto error;
 		maxdsm.platform_type = arg;
 		ret = maxdsm.platform_type;
