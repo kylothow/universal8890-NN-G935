@@ -167,7 +167,7 @@ void oneshot_uid_resetmap(struct oneshot_uid *oneshot_uid_net)
 }
 EXPORT_SYMBOL(oneshot_uid_resetmap);
 
-void oneshot_uid_addrule_to_map(struct oneshot_uid *oneshot_uid_net,
+int oneshot_uid_addrule_to_map(struct oneshot_uid *oneshot_uid_net,
 				const void *data)
 {
 	const struct xt_qtaguid_match_info *info = data;
@@ -192,7 +192,7 @@ void oneshot_uid_addrule_to_map(struct oneshot_uid *oneshot_uid_net,
 			pr_err("%s unsupported user_id:%llu, uid num:%llu\n",
 			       __func__, user_id, uid_val);
 #endif
-			return;
+			return -EBADF;
 		}
 
 		/* over than 10000 */
@@ -212,14 +212,20 @@ void oneshot_uid_addrule_to_map(struct oneshot_uid *oneshot_uid_net,
 #ifdef ONESHOT_UID_DEBUG
 				oneshot_uid_printrule(oneshot_uid_net);
 #endif
-				return;
+				return 0;
 			}
 		}
 
 		/* alloc new oneshot_uid_chmap */
-		map_pos = kmalloc(sizeof(*map_pos), GFP_KERNEL);
+		map_pos = kmalloc(sizeof(*map_pos), GFP_ATOMIC);
+		if (!map_pos)
+			return -ENOMEM;
 		map_pos->user_id = user_id;
-		map_pos->map = kmalloc(sizeof(u64) * RULEMAPSIZE, GFP_KERNEL);
+		map_pos->map = kmalloc(sizeof(u64) * RULEMAPSIZE, GFP_ATOMIC);
+		if (!map_pos->map) {
+			kfree(map_pos);
+			return -ENOMEM;
+		}
 		memset(map_pos->map, 0, sizeof(u64) * RULEMAPSIZE);
 		map_pos->map[idx] |= (1LL << bit);
 
@@ -228,6 +234,8 @@ void oneshot_uid_addrule_to_map(struct oneshot_uid *oneshot_uid_net,
 		oneshot_uid_printrule(oneshot_uid_net);
 #endif
 	}
+	
+	return 0;
 }
 EXPORT_SYMBOL(oneshot_uid_addrule_to_map);
 
