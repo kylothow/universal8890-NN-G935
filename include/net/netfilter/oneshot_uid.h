@@ -28,7 +28,7 @@ extern int oneshot_uid_checkmap(struct oneshot_uid *oneshot_uid_net,
 				const struct sk_buff *skb,
 				struct xt_action_param *par);
 extern void oneshot_uid_resetmap(struct oneshot_uid *oneshot_uid_net);
-extern void oneshot_uid_addrule_to_map(struct oneshot_uid *oneshot_uid_net,
+extern int oneshot_uid_addrule_to_map(struct oneshot_uid *oneshot_uid_net,
 				       const void *data);
 extern void oneshot_uid_cleanup_unusedmem(struct oneshot_uid *oneshot_uid_net);
 
