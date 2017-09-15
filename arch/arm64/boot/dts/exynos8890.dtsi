@@ -13,7 +13,6 @@
  * published by the Free Software Foundation.
  */
 
-/memreserve/ 0xF0000000 0x8800000;     /* CP memory(128MB) + AP-CP shared memory(8MB) */
 #include <dt-bindings/clock/exynos8890.h>
 #include <dt-bindings/ufs/ufs.h>
 #include <dt-bindings/sysmmu/sysmmu.h>
