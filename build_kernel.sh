@@ -136,7 +136,7 @@ else
 	FUNC_UNKNOWN_INPUT
 fi
 if [ $1 == 1 ] || [ $1 == 3 ]; then
-	export VARIANT=eur
+	export VARIANT=
 elif [ $1 == 2 ] || [ $1 == 4 ]; then
 	export VARIANT=kor
 fi
@@ -216,12 +216,12 @@ FUNC_BUILD_DTIMAGE_TARGET()
 	echo ""
 
 	if [ $HOST_ARCH == x86_64 ]; then
-		if [ $MODEL == herolte ] && [ $VARIANT == eur ]; then
+		if [ $MODEL == herolte ] && [ -z $VARIANT ]; then
 			DTSFILES="exynos8890-herolte_eur_open_00 exynos8890-herolte_eur_open_01
 					exynos8890-herolte_eur_open_02 exynos8890-herolte_eur_open_03
 					exynos8890-herolte_eur_open_04 exynos8890-herolte_eur_open_08
 					exynos8890-herolte_eur_open_09"
-		elif [ $MODEL == hero2lte ] && [ $VARIANT == eur ]; then
+		elif [ $MODEL == hero2lte ] && [ -z $VARIANT ]; then
 			DTSFILES="exynos8890-hero2lte_eur_open_00 exynos8890-hero2lte_eur_open_01
 					exynos8890-hero2lte_eur_open_03 exynos8890-hero2lte_eur_open_04
 					exynos8890-hero2lte_eur_open_08"
@@ -277,7 +277,11 @@ FUNC_BUILD_KERNEL()
 	echo ""
 	echo "◊ Build defconfig:	$KERNEL_DEFCONFIG"
 	echo "◊ Build model:		$MODEL"
-	echo "◊ Build variant:	$VARIANT"
+	if [ -z $VARIANT ]; then
+		echo "◊ Build variant:	International"
+	elif [ $VARIANT == kor ]; then
+		echo "◊ Build variant:	Korean"
+	fi
 
 	echo ""
 	echo "◊ Generating kernel config..."
