@@ -646,16 +646,19 @@ else
 KBUILD_CFLAGS	+= -O2
 endif
 
-LDFLAGS	+= --strip-debug -O2
+LDFLAGS	+= \
+		   --strip-debug \
+		   -O2
 
-KBUILD_CFLAGS	+= -g0 -pipe -DNDEBUG \
+KBUILD_CFLAGS	+= \
+		   -DNDEBUG \
 		   -fgcse-after-reload \
 		   -fgcse-las \
 		   -fgcse-lm \
 		   -fgcse-sm \
 		   -fivopts \
 		   -floop-flatten \
-		   -floop-parallelize-all \
+		   -fmodulo-sched \
 		   -fmodulo-sched-allow-regmoves \
 		   -fomit-frame-pointer \
 		   -fpredictive-commoning \
@@ -667,21 +670,22 @@ KBUILD_CFLAGS	+= -g0 -pipe -DNDEBUG \
 		   -funroll-loops \
 		   -funsafe-math-optimizations \
 		   -fweb \
+ 		   -g0 \
 		   -mlow-precision-recip-sqrt \
 		   -mpc-relative-literal-loads \
 		   -mcpu=exynos-m1 \
-		   -mtune=exynos-m1
+		   -mtune=exynos-m1 \
+		   -pipe
 
-ifneq ($(HOST_ARCH),aarch64)
-KBUILD_CFLAGS	+= -fgraphite \
-		   -fgraphite-identity \
-		   -floop-block \
-		   -floop-interchange \
-		   -floop-nest-optimize \
-		   -floop-strip-mine \
-		   -fmodulo-sched \
-		   -ftree-loop-linear
-endif
+KBUILD_CFLAGS	+= \
+		   $(call cc-option,-fgraphite) \
+		   $(call cc-option,-fgraphite-identity) \
+		   $(call cc-option,-floop-block) \
+		   $(call cc-option,-floop-interchange) \
+		   $(call cc-option,-floop-nest-optimize) \
+		   $(call cc-option,-floop-parallelize-all) \
+		   $(call cc-option,-floop-strip-mine) \
+		   $(call cc-option,-ftree-loop-linear)
 
 # Disallow introduction of unaligned stores
 KBUILD_CFLAGS	+= $(call cc-option,--param=store-merging-allow-unaligned=0)
